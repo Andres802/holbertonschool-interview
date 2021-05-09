@@ -33,4 +33,4 @@ Write a function that inserts a value into a Max Binary Heap:
 - If the address stored in root is NULL, the created node must become the root node.
 - You have to respect a Max Heap ordering
 - You are allowed to have up to 6 functions in your file
-#### Twitter: [Jorge Chaux Jr](https://twitter.com/jorgechauxjr)
+#### Twitter: [Andres Barrera](https://twitter.com/codesectest)
