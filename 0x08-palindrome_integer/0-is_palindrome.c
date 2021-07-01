@@ -7,14 +7,16 @@
  */
 int is_palindrome(unsigned long n)
 {
-	char num[50];
+	int num[50];
 	int i, total_digits;
 
 	/* Put the number n in array */
 	for (i = 0; n; i++)
 	{
 		num[i] = n % 10;
+		printf("este es n : %lu\n", n);
 		n = n / 10;
+		printf("este es num :%d\n", num[i]);
 	}
 	num[i] = '\0';
 	/* Go through the string to identify the palindrome */
