@@ -1,49 +1,53 @@
-#include <stdlib.h>
 #include "lists.h"
+
 /**
- * insert_node -add node to list.
- * Description: Function that inserts a number into a sorted singly linked list
- * @head: pointer to a pointer, head of the list
- * @number: integer value to insert
- * Return: the address of the new node, or NULL if it failed
- **/
+ * insert_node - Adds a new_node number in a listint_t list.
+ * @number: number to be added in the list
+ * @head:   pointer at the head of the list
+ *
+ * Return: "The address of the new_node element, or NULL if it failed"
+ */
+
 listint_t *insert_node(listint_t **head, int number)
 {
-	listint_t *newNode, *tmp = *head;
+	listint_t *new_node, *tmp, *ant;
+	unsigned int i = 0;
 
-	newNode = malloc(sizeof(listint_t)); /*Assign mwmory space for newNode*/
-	if (newNode == NULL)  /*validate malloc is good, if not return null*/
+	if (head == NULL)
+		return (0);
+
+	new_node = malloc(sizeof(listint_t));
+	if (new_node == NULL)
+	{
+		free(new_node);
 		return (NULL);
-	newNode->n = number;
-	if (*head == NULL) /*Validate if there is not elements in the list*/
+	}
+	if (*head == NULL)
 	{
-		*head = newNode;
-		newNode->next = NULL;
-		return (newNode);
+		new_node->n = number, new_node->next = NULL, *head = new_node;
+		return (new_node);
 	}
-	if (tmp->next == NULL)
-	{ /* validate if there is only one element in the list*/
-		newNode->next = NULL;
-		tmp->next = newNode;
-		return (newNode);
-	}
-	if (number <= tmp->n)
+	for (tmp = *head, new_node->n = number;
+		 new_node->n > tmp->n && tmp != NULL;
+		 ant = tmp, tmp = tmp->next, i++)
 	{
-		newNode->next = tmp;
-		*head = newNode;
-		return (newNode);
+		if (tmp->next == NULL)
+			break;
 	}
-	while (tmp->next != NULL)
-	{/*go through the list*/
-		if (number <= tmp->next->n)
+	if (tmp->next != NULL)
+	{
+		if (i != 0)
 		{
-			newNode->next = tmp->next;
-			tmp->next = newNode;
-			return (newNode);
+			ant->next = new_node, new_node->next = tmp;
 		}
-		tmp = tmp->next;
+		else
+		{
+			new_node->next = *head, *head = new_node;
+		}
 	}
-	tmp->next = newNode;
-	newNode->next = NULL;
-	return (newNode);
+	else
+	{
+		tmp->next = new_node, new_node->next = NULL;
+	}
+	return (new_node);
 }

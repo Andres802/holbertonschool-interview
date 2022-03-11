@@ -1,34 +1,16 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "sandpiles.h"
+#define TRUE_ 1
+#define FALSE_ 0
 
 /**
- * grid_addition - add 2 grids
- * @grid1: first matrix
- * @grid2: second matrix
+ * alt_print_grid - print grid
+ * @grid1: grid to print
  */
-
-void grid_addition(int grid1[3][3], int grid2[3][3])
+void alt_print_grid(int grid1[3][3])
 {
 	int i, j;
-
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			grid1[i][j] = grid1[i][j] + grid2[i][j];
-		}
-	}
-}
-
-/**
- * grid_print - print a grid
- * @grid: matrix
- */
-
-void grid_print(int grid[3][3])
-{
-	int i = 0;
-	int j = 0;
 
 	printf("=\n");
 	for (i = 0; i < 3; i++)
@@ -37,49 +19,83 @@ void grid_print(int grid[3][3])
 		{
 			if (j)
 				printf(" ");
-			printf("%d", grid[i][j]);
+			printf("%d", grid1[i][j]);
 		}
 		printf("\n");
 	}
 }
 
 /**
- * grid_is_ok - check if a grid is ok
- * @grid: matrix
- * Return: 1 if is ok or 0 if not
+ * sandpiles_sum - sum of 2 sandpiles
+ * @grid1: 1st sandpile
+ * @grid2: 2nd sandpile
  */
-
-int grid_is_ok(int grid[3][3])
+void sandpiles_sum(int grid1[3][3], int grid2[3][3])
 {
-	int i = 0;
-	int j = 0;
+	add_grids(grid1, grid2);
+	if (!is_stable(grid1))
+		alt_print_grid(grid1);
+	while (!is_stable(grid1))
+	{
+		topple(grid1);
+		if (!is_stable(grid1))
+			alt_print_grid(grid1);
+	}
+}
+
+/**
+ * is_stable - Check if any cell is bigger than 3
+ * @grid1: grid to be verified
+ * Return:
+ * @TRUE_ (1): If the grid is stable
+ * @FALSE_ (0) if not.
+ */
+int is_stable(int grid1[3][3])
+{
+	int i, j;
 
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
 		{
-			if (grid[i][j] > 3)
-				return (0);
+			if (grid1[i][j] > 3)
+				return (FALSE_);
 		}
 	}
-	return (1);
+	return (TRUE_);
 }
 
 /**
- * grid_change - change a grid value
- * @grid1: matrix
+ * add_grids - adds 2 grids withour restrictions
+ * @grid1: grid1
+ * @grid2: grid2
  */
-
-void grid_change(int grid1[3][3])
+void add_grids(int grid1[3][3], int grid2[3][3])
 {
-	int i = 0;
-	int j = 0;
-	int gridx[3][3];
+	int i, j;
 
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
-			gridx[i][j] = 0;
+			grid1[i][j] = grid1[i][j] + grid2[i][j];
+	}
+}
+
+/**
+ * topple - removes grains of sand of each cell
+ * @grid1: grid
+ */
+void topple(int grid1[3][3])
+{
+	int grains[3][3];
+	int i, j;
+
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			grains[i][j] = 0;
+		}
 	}
 
 	for (i = 0; i < 3; i++)
@@ -88,33 +104,21 @@ void grid_change(int grid1[3][3])
 		{
 			if (grid1[i][j] > 3)
 			{
-				grid1[i][j] = grid1[i][j] - 4;
-				if ((i - 1) >= 0 && (i - 1) < 3)
-					gridx[i - 1][j] += 1;
-				if ((j - 1) >= 0 && (j - 1) < 3)
-					gridx[i][j - 1] += 1;
-				if ((i + 1) >= 0 && (i + 1) < 3)
-					gridx[i + 1][j] += 1;
-				if ((j + 1) >= 0 && (j + 1) < 3)
-					gridx[i][j + 1] += 1;
+				/* left */
+				if ((i - 1 >= 0) && (i - 1 < 3))
+					grains[i - 1][j]++;
+				/* right */
+				if ((i + 1 >= 0) && (i + 1 < 3))
+					grains[i + 1][j]++;
+				/* up */
+				if ((j - 1 >= 0) && (j - 1 < 3))
+					grains[i][j - 1]++;
+				/* down */
+				if ((j + 1 >= 0) && (j + 1 < 3))
+					grains[i][j + 1]++;
+				grid1[i][j] -= 4;
 			}
 		}
 	}
-	grid_addition(grid1, gridx);
-}
-
-/**
- * sandpiles_sum - sum 2 sandpiles
- * @grid1: first matrix
- * @grid2: second matrix
- */
-
-void sandpiles_sum(int grid1[3][3], int grid2[3][3])
-{
-	grid_addition(grid1, grid2);
-	while (!grid_is_ok(grid1))
-	{
-		grid_print(grid1);
-		grid_change(grid1);
-	}
+	add_grids(grid1, grains);
 }

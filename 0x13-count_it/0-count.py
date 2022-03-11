@@ -1,53 +1,79 @@
 #!/usr/bin/python3
 """
-Count it!
+N queens
 """
-from requests import request
+
+import requests
 
 
-def generate_dicts(word_list):
+def count_words(subreddit, word_list):
     """
-    generate_dicts functions
+    Auxiliar function that invoques the funtion alt_count_words
+
+    Args:
+        subreddit ([str]): [The subreddit to search]
+        word_list ([list]): [The list of words to search]
+
+    Returns:
+        [type]: [description]
     """
-    count = {k: 0 for k in word_list}
-    dup = {}
-    for k in word_list:
-        if k not in dup:
-            dup[k] = 0
-        dup[k] += 1
-    return (count, dup)
+
+    instances = {}
+    after = ""
+    count = 0
+
+    return alt_count_words(subreddit, word_list, instances, after, count)
 
 
-def count_words(subreddit, word_list, after="", count={}, dup={}, init=0):
+def alt_count_words(subreddit, word_list, instances={}, after="", count=0):
     """
-    count_words function
-    """
-    if not init:
-        count, dup = generate_dicts(word_list)
+    recursive function that queries the Reddit API, parses the title of all
+    hot articles, and prints a sorted count of given keywords
+    (case-insensitive, delimited by spaces. Javascript should count as
+    javascript, but java should not)
 
-    url = "https://api.reddit.com/r/{}/hot?after={}".format(subreddit, after)
-    headers = {"User-Agent": "Python3"}
-    response = request("GET", url, headers=headers).json()
+    Args:
+        subreddit ([str]): [The subreddit to search]
+        word_list ([list]): [The list of words to search]
+        instances (dict, optional): [Pairs of words - counts]. Defaults to {}.
+        after (str, optional): [parameter for the next page of the API result]
+                               Defaults to "".
+        count (int, optional): [Number of results matched]. Defaults to 0.
+    """
+
+    url = "https://www.reddit.com/r/" + subreddit + "/hot/.json"
+    h = {"User-Agent": "rodrigo_rca"}
+    p = {"after": after, "count": count, "limit": 100}
+
+    response = requests.get(url, headers=h, params=p, allow_redirects=False)
     try:
-        data = response.get('data')
-        top = data.get('children')
-        _after = data.get('after')
+        rr = response.json()
+        if (response.status_code > 300):
+            raise BaseException
+    except BaseException:
+        return
 
-        for item in top:
-            data = item.get('data')['title']
-            for word in count:
-                amount = data.lower().split(' ').count(word.lower())
-                count[word] += amount
+    rr = rr.get("data")
+    after = rr.get("after")
+    count += rr.get("dist")
+    for child in rr.get("children"):
+        title = child.get("data").get("title").lower().split()
+        for word in word_list:
+            if (word.lower() in title):
+                t = len([t for t in title if t == word.lower()])
+                w = instances.get(word)
+                instances[word] = t if w is None else instances[word] + t
 
-        if _after:
-            count_words(subreddit, word_list, _after, count, dup, 1)
-        else:
-            sort_abc = sorted(count.items(), key=lambda tup: tup[::-1])
-            desc = sorted(sort_abc, key=lambda tup: tup[1], reverse=True)
-
-            for name, cnt in desc:
-                cnt *= dup[name]
-                if cnt:
-                    print('{}: {}'.format(name.lower(), cnt))
-    except Exception:
-        return None
+    if (after is None):
+        if (len(instances) == 0):
+            print("")
+            return
+        code = []
+        for item, value in instances.items():
+            code.append((value, item))
+        code.sort(reverse=True)
+        for k in code:
+            item, value = k[0], k[1]
+            print("{}: {}".format(value, item))
+    else:
+        alt_count_words(subreddit, word_list, instances, after, count)

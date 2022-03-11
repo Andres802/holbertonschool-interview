@@ -1,26 +1,32 @@
 #!/usr/bin/python3
 """
-Minimum Operations
+Module used to min ops
 """
 
 
 def minOperations(n):
     """
-    In a text file, there is a single character H.
-    Your text editor can execute only two operations in this file:
-    Copy All and Paste. Given a number n, write a method that calculates
-    the fewest number of operations needed to result in exactly n H characters
-    in the file
+    Method that determines if all the boxes can be opened.
+    Args:
+        n (int): Number.
+
+    Returns:
+        x (int): for success,
+        0 if it is impossible to achieve
     """
 
-    if n <= 1:
+    if (not isinstance(n, int)):
         return 0
-    num, div, numOfOperations = n, 2, 0
 
-    while num > 1:
-        if num % div == 0:
-            num = num / div
-            numOfOperations = numOfOperations + div
-        else:
-            div += 1
-    return numOfOperations
+    if (n < 2):
+        return 0
+
+    res = 0
+    i = 2
+    while i <= n:
+        if n % i == 0:
+            res += i
+            n = n / i
+            i = i - 1
+        i = i + 1
+    return int(res)

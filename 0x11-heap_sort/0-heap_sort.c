@@ -1,65 +1,71 @@
 #include "sort.h"
 
-/**
- * swap_values - interchange 2 values of a given list
- * @array: list of numbers
- * @i: index of the value1 to swap
- * @j: index of the value2 to swap
- * @size: original len arr
- * Return: nothing
- */
-void swap_values(int *array, int i, int j, int size)
-{
-	int temp = 0;
+/* https://www.geeksforgeeks.org/heap-sort */
 
-	temp = array[i];
-	array[i] = array[j];
-	array[j] = temp;
-	print_array(array, size);
+
+/**
+ * swap -   Swap the the position of two elements in an array
+ * @a:	  first value
+ * @b:	  second value
+ */
+void swap(int *a, int *b)
+{
+	int temp = *a;
+	*a = *b;
+	*b = temp;
 }
 
 /**
- * heapify - organize the given list into max heap
- * @array: list of integers
- * @si: len of the heap sort arr
- * @bin: parent node
- * @size: original len array
- * Return: nothing
+ * heapify -	Find largest
+ * @array:		array
+ * @n:		    start of the array
+ * @i:		    current position
+ * @size:       size
  */
-void heapify(int *array, int si, int bin, int size)
+void heapify(int *array, int n, int i, size_t size)
 {
-	int largt = bin, left = (bin * 2) + 1, rigth = (bin * 2) + 2;
+	/* Find largest among root, left child and right child */
 
-	if (left < si && array[left] > array[largt])
-		largt = left;
+	int largest = i;
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
 
-	if (rigth < si && array[rigth] > array[largt])
-		largt = rigth;
+	if (left < n && array[left] > array[largest])
+		largest = left;
 
-	if (largt != bin)
+	if (right < n && array[right] > array[largest])
+		largest = right;
+
+	/* Swap and continue heapifying if root is not largest */
+	if (largest != i)
 	{
-		swap_values(array, bin, largt, size);
-		heapify(array, si, largt, size);
+		swap(&array[i], &array[largest]);
+		print_array(array, size);
+		heapify(array, n, largest, size);
 	}
+
 }
 
+
 /**
- * heap_sort - sort a given list using heapsort
- * @array: list of integers
- * @size: len of the array
- * Return: nothing
+ * heap_sort -  Build max heap
+ * @array:	  array
+ * @size:	   size of array
  */
 void heap_sort(int *array, size_t size)
 {
-	int bin = 0, si = size;
+	size_t i;
 
-	for (bin = (size / 2) - 1; bin >= 0; bin--)
-		heapify(array, si, bin, size);
+	if (array == NULL)
+		return;
 
-	for (bin = size - 1; bin >= 0; bin--)
+	for (i = size / 2 ; i > 0; i--)
+		heapify(array, size, i - 1, size);
+
+	for (i = size - 1; i > 0; i--)
 	{
-		if (bin != 0)
-			swap_values(array, bin, 0, size);
-		heapify(array, bin, 0, size);
+		swap(&array[0], &array[i]);
+		print_array(array, size);
+		heapify(array, i, 0, size);
 	}
 }
